@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Casper Auth Demo Login</title>
+    <style>
+        body {
+            background: black;
+            color: white;
+            font: 90%/1.45em "Helvetica Neue", HelveticaNeue, Helvetica, Arial, sans-serif;
+            padding-top: 40px;
+        }
+        div {
+            margin: 10px;
+        }
+        .centered {
+            position: relative;
+            left: 50%;
+            transform: translate(-50%, 0);
+        }
+        .textCentered {
+            text-align: center;
+            vertical-align:middle;
+        }
+        .inputtext {
+            background: transparent;
+            color: white;
+            font-size: 200%;
+            border: 0;
+            outline: 0;
+            border-bottom: 1px solid red;
+            padding : 10px;
+        }
+        #divLogo {
+            margin-bottom: 50px;
+        }
+        #imgLogo {
+            width: 70px;
+        }
+        #btn_login {
+            margin: 40px 0;
+            padding: 20px;
+            background-color: transparent;
+            color: white;
+            outline: none;
+            font-size: 150%;
+        }
+        #btn_login:focus {
+            border-color: red;
+        }
+    </style>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script src="//cdn.socket.io/socket.io-1.4.5.js"></script>
+</head>
+<body>
+<div id="divLogo">
+    <img id="imgLogo" src="logo_ix.png" class="centered">
+</div>
+<div class="centered">
+    <input type="text" id="txt_username" placeholder="username" size="8" autocorrect="off" autocapitalize="off" class="inputtext centered">
+    <br>
+    <input type="password" id="txt_password" placeholder="password" size="8" class="inputtext centered">
+    <br>
+    <input type="button" id="btn_login" value="login" class="centered">
+</div>
+<div id="divStatus" class="textCentered">
+</div>
+</body>
+<script>
+    $(document).ready(function() {
+
+        $('#btn_login').on('click', function () {
+            var username = document.getElementById('txt_username').value;
+            var password = document.getElementById('txt_password').value;
+            if (!username || !password) {
+                document.getElementById('divStatus').innerHTML = "username & password are required";
+            }
+            else {
+                document.getElementById('divStatus').innerHTML = "";
+                doLogin(username, password, function (err, data) {
+                    if (err) {
+                        console.log(data);
+                        document.getElementById('divStatus').innerHTML = "wrong username/password";
+                    }
+                    else {
+                        do2FALogin(username, function (err, data) {
+                            if (err) {
+                                console.log(data);
+                                document.getElementById('divStatus').innerHTML = "wrong username/password";
+                            }
+                            else {
+                                document.getElementById('btn_login').disabled = true;
+                                document.getElementById('divStatus').innerHTML = "<img height=15 src='" + "/animated_loading_icon.gif'> waiting for auth by SOUL";
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    });
+
+    function doLogin(username,password,callback) {
+        var data = {
+            username: username,
+            password: password
+        };
+        $.ajax({
+            url: "/login",
+            type: 'POST',
+            data: data,
+            success: function (data, textStatus) {
+                callback(null, data);
+            },
+            error: function (data, textStatus) {
+                callback(textStatus, JSON.parse(data.responseText));
+            }
+        });
+    }
+
+    function do2FALogin(username,callback) {
+        var data = {
+            username: username
+        };
+        $.ajax({
+            url: "/auth",
+            type: 'POST',
+            data: data,
+            success: function (data, textStatus) {
+                callback(null, data);
+            },
+            error: function (data, textStatus) {
+                callback(textStatus, JSON.parse(data.responseText));
+            }
+        });
+    }
+</script>

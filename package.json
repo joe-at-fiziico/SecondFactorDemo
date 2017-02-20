@@ -1,0 +1,21 @@
+{
+  "name": "FiziicoSecondFactorDemo",
+  "version": "0.9.0",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node ."
+  },
+  "dependencies": {
+    "body-parser": "^1.16.1",
+    "express": "^4.14.1",
+    "fiziico-second-factor": "^0.9.0",
+    "request": "^2.79.0"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "",
+    "url": ""
+  },
+  "license": "UNLICENSED",
+  "description": "Fiziico second factor integration example"
+}
